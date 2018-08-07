@@ -8,5 +8,11 @@ namespace Comment_Review_Downloader.Data
 {
     public class CommentsDbContext : DbContext
     {
+        public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
+        {
+
+        }
+
+        public CommentsDbContext() { }
     }
 }
