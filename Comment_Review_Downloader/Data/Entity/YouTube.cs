@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Comment_Review_Downloader.Data.Abstract;
 
 namespace Comment_Review_Downloader.Data.Entity
 {
-    public class YouTube
+    public class YouTube : BaseEntity
     {
         public int Id { get; set; }
         public string YouTube_Id { get; set; }
+        /// <summary>
+        /// No of Comments
+        /// </summary>
         public int NOC { get; set; }
         public string Location { get; set; }
         public string Name { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public DateTime DateAdded { get; set; }
     }
 }

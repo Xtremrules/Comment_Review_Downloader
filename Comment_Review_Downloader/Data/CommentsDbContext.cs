@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Comment_Review_Downloader.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,8 @@ namespace Comment_Review_Downloader.Data
         }
 
         public CommentsDbContext() { }
+
+        public virtual DbSet<YouTube> YouTube { get; set; }
+        public virtual DbSet<Amazon> Amazon { get; set; }
     }
 }

@@ -5,15 +5,15 @@
 
 <h2>Youtube/Amazon Comments/Review Downloader</h2>
 <p>Fill in the form with a Youtube video url or Amazon product url, we will get the comments/reviews and send it to your mailbox shortly.</p>
-<form asp-controller="Home" asp-action="SendMail" method="post">
+<form asp-controller="Home" asp-action="Index" method="post">
     <div class="form-group">
         <label asp-for=RequestUrl></label>
-        <input type="text" asp-for=RequestUrl class="form-control" />
+        <input type="text" required asp-for=RequestUrl class="form-control" />
         <span asp-validation-for=RequestUrl />
     </div>
     <div class="form-group">
         <label asp-for="Email"></label>
-        <input type="email" asp-for="Email" class="form-control" />
+        <input type="email" required asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" />
     </div>
     <div class="form-group">

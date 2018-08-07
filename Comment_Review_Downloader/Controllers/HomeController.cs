@@ -16,6 +16,7 @@ namespace Comment_Review_Downloader.Controllers
             return View(new RequestViewModel());
         }
 
+        [ValidateAntiForgeryToken, HttpPost]
         public IActionResult Index(RequestViewModel model)
         {
             if (!ModelState.IsValid)
