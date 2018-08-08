@@ -1,0 +1,26 @@
+﻿@model Comment_Review_Downloader.Models.RequestViewModel
+
+@{
+    ViewData["Title"] = "amazon";
+}
+
+
+<h4>Request View</h4>
+<h1>Thank you!</h1>
+<p>We reiceved your request and we're going to get in touch with you soon!</p>
+@*<p>Request Id: @Model.Id</p>*@
+<p>Request Url: @Model.RequestUrl</p>
+<p>Delivery Email: @Model.Email</p>
+<a href="/" class="btn btn-primary">Go back to the Homepage</a>
+@*@if (Model.MailSent)
+{
+    <a asp-action="Download" asp-route-filename="@Model.FileName" class="btn btn-success">Download</a>
+}*@
+<br>
+<p>Keep waiting till the Download button appears or wait for the file in your email.</p>
+
+@section scripts{
+    <script>
+        setTimeout(_ => location.reload(), 30000);
+    </script>
+}

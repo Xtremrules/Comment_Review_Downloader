@@ -16,48 +16,59 @@ namespace Comment_Review_Downloader.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.1-rtm-30846");
 
-            modelBuilder.Entity("Comment_Review_Downloader.Data.Entity.Amazon", b =>
+            modelBuilder.Entity("Comment_Review_Downloader.Data.Entity.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("DateAdded");
 
+                    b.Property<bool>("Fetched");
+
                     b.Property<string>("Location");
 
-                    b.Property<int>("NOC");
+                    b.Property<int?>("NOC");
 
                     b.Property<string>("Name");
 
                     b.Property<DateTime?>("UpdatedDate");
 
-                    b.Property<string>("Url");
+                    b.Property<string>("Url")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
-                    b.ToTable("Amazon");
+                    b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("Comment_Review_Downloader.Data.Entity.YouTube", b =>
+            modelBuilder.Entity("Comment_Review_Downloader.Data.Entity.CommentRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("DateAdded");
+                    b.Property<int>("CommentId");
 
-                    b.Property<string>("Location");
+                    b.Property<DateTime>("dateRequested");
 
-                    b.Property<int>("NOC");
+                    b.Property<DateTime?>("dateSent");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("emailAddress");
 
-                    b.Property<DateTime?>("UpdatedDate");
-
-                    b.Property<string>("YouTube_Id");
+                    b.Property<bool>("emailed");
 
                     b.HasKey("Id");
 
-                    b.ToTable("YouTube");
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentRequests");
+                });
+
+            modelBuilder.Entity("Comment_Review_Downloader.Data.Entity.CommentRequest", b =>
+                {
+                    b.HasOne("Comment_Review_Downloader.Data.Entity.Comment", "Comment")
+                        .WithMany("CommentRequests")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -16,7 +16,7 @@ namespace Comment_Review_Downloader.Data
 
         public CommentsDbContext() { }
 
-        public virtual DbSet<YouTube> YouTube { get; set; }
-        public virtual DbSet<Amazon> Amazon { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
+        public virtual DbSet<CommentRequest> CommentRequests { get; set; }
     }
 }

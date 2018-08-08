@@ -1,0 +1,14 @@
+﻿@model RequestViewModel
+
+@{
+    ViewData["Title"] = "youtube";
+    string youTubeId = Model.RequestUrl.Substring(Model.RequestUrl.Length - 11);
+}
+
+<div class="embed-responsive embed-responsive-16by9">
+    <iframe class="embed-responsive-item" src="@("https://www.youtube.com/embed/" + youTubeId)" allow="encrypted-media" allowfullscreen></iframe>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

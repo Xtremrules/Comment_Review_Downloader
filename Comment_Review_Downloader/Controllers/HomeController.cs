@@ -6,18 +6,32 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Comment_Review_Downloader.Models;
+using Comment_Review_Downloader.Data.Interface;
+using Microsoft.Extensions.Logging;
+using Comment_Review_Downloader.Data.Entity;
 
 namespace Comment_Review_Downloader.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IRepository<Comment> _commentRepo;
+        private readonly IRepository<CommentRequest> _commentRequestRepo;
+
+        public HomeController(IRepository<Comment> comment, IRepository<CommentRequest> commentRequest, ILogger<HomeController> logger)
+        {
+            _commentRepo = comment;
+            _commentRequestRepo = commentRequest;
+            _logger = logger;
+        }
+
         public IActionResult Index()
         {
             return View(new RequestViewModel());
         }
 
         [ValidateAntiForgeryToken, HttpPost]
-        public IActionResult Index(RequestViewModel model)
+        public async Task<IActionResult> Index(RequestViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -26,7 +40,16 @@ namespace Comment_Review_Downloader.Controllers
 
             if (model.RequestUrl.Contains("amazon"))
             {
-                return View("amazon-download", model.RequestUrl);
+                try
+                {
+                    await AddRequesAsync(model);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                return View("amazon-download", model);
             }
             else
             {
@@ -34,12 +57,62 @@ namespace Comment_Review_Downloader.Controllers
                 var isMatch = Regex.IsMatch(model.RequestUrl, match, RegexOptions.IgnoreCase);
                 if (isMatch)
                 {
-                    var youtubeId = model.RequestUrl.Substring(model.RequestUrl.Length - 11);
-                    return View("youtube-download", model.RequestUrl);
+                    try
+                    {
+                        await AddRequesAsync(model);
+                        return View("youtube-download", model);
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
                 }
 
-                return View(model);
             }
+
+            addError("Not an Amazon or YouTube address");
+            return View(model);
+        }
+
+        async Task AddRequesAsync(RequestViewModel model)
+        {
+            var comment = await _commentRepo.GetOneAsync(x => x.Url == model.RequestUrl);
+            if (comment != null)
+            {
+                _commentRequestRepo.Create(new CommentRequest
+                {
+                    dateRequested = DateTime.Now,
+                    emailAddress = model.Email,
+                    emailed = false,
+                    CommentId = comment.Id,
+                });
+                await _commentRequestRepo.SaveAsync();
+            }
+            else
+            {
+                comment = new Comment
+                {
+                    Url = model.RequestUrl,
+                    DateAdded = DateTime.Now,
+                    Fetched = false,
+                };
+
+                comment.CommentRequests = new List<CommentRequest>();
+                comment.CommentRequests.Add(new CommentRequest
+                {
+                    dateRequested = DateTime.Now,
+                    emailAddress = model.Email,
+                    emailed = false,
+                });
+                _commentRepo.Create(comment);
+                await _commentRepo.SaveAsync();
+            }
+        }
+
+        private void addError(string message)
+        {
+            TempData["error"] = message;
         }
 
         public IActionResult About()

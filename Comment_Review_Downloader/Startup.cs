@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Comment_Review_Downloader.Data;
+using Comment_Review_Downloader.Data.Interface;
+using Comment_Review_Downloader.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +38,9 @@ namespace Comment_Review_Downloader
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDbContext<CommentsDbContext>(options => options.UseSqlite("Data Source = CommentsTable.db"));
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +66,13 @@ namespace Comment_Review_Downloader
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            #region perform automatic migrations
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                serviceScope.ServiceProvider.GetService<CommentsDbContext>().Database.Migrate();
+            }
+            #endregion
         }
     }
 }

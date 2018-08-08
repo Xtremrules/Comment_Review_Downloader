@@ -12,6 +12,6 @@ namespace Comment_Review_Downloader.Models
         public const string Amazon = "amazon";
         public const string YoutubeHost = "www.youtube.com";
         public const string AmazonHost = "www.amazon.com";
-        public static string TempFileDirectory { get => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CommentFolder"); }
+        public static string FileDirectory { get => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CommentFolder"); }
     }
 }
