@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Comment_Review_Downloader.Service.HostedServices;
+using Microsoft.Extensions.Hosting;
+using Comment_Review_Downloader.Service;
+using Comment_Review_Downloader.Models;
 
 namespace Comment_Review_Downloader
 {
@@ -39,12 +43,32 @@ namespace Comment_Review_Downloader
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDbContext<CommentsDbContext>(options => options.UseSqlite("Data Source = CommentsTable.db"));
 
+            services.AddSingleton<BackgroundReviewWorker>();
+            services.AddSingleton<BackgroundEMailSender>();
+            services.AddSingleton<IHostedService>(serviceProvider => serviceProvider.GetService<BackgroundReviewWorker>());
+            services.AddSingleton<IHostedService>(serviceProvider => serviceProvider.GetService<BackgroundEMailSender>());
+
+            services.AddSingleton<YoutubeCommentsFetcher>();
+            //services.AddSingleton<AmazonFetcher>();
+
+            services.AddTransient<Func<string, ICommentFetcher>>(serviceProvider => key => {
+                switch (key)
+                {
+                    case AppConstants.Youtube:
+                        return serviceProvider.GetService<YoutubeCommentsFetcher>();
+                    //case AppConstants.Amazon:
+                    //    return serviceProvider.GetService<AmazonFetcher>();
+                    default:
+                        throw new KeyNotFoundException(); // or maybe return null, up to you
+                }
+            });
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
