@@ -23,7 +23,7 @@ namespace Comment_Review_Downloader.Data
 
         public virtual void Create(T entity)
         {
-            if (entity == null) throwError();
+            if (entity == null) ThrowError();
             _unitOfWork.Context.Set<T>().Add(entity);
 
         }
@@ -93,7 +93,7 @@ namespace Comment_Review_Downloader.Data
             _unitOfWork.Context.Entry(entity).State = EntityState.Modified;
         }
 
-        void throwError()
+        void ThrowError()
         {
             throw new ArgumentNullException("entity", "can't pass a null object to this method");
         }
