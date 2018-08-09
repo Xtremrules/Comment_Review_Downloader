@@ -2,13 +2,44 @@
 
 @{
     ViewData["Title"] = "youtube";
-    string youTubeId = Model.RequestUrl.Substring(Model.RequestUrl.Length - 11);
 }
 @Html.Partial("_alerts")
 
 <div class="embed-responsive embed-responsive-16by9">
-    <iframe class="embed-responsive-item" src="@("https://www.youtube.com/embed/" + youTubeId)" allow="encrypted-media" allowfullscreen></iframe>
+    <iframe class="embed-responsive-item" src="@("https://www.youtube.com/embed/" + Model.RequestUrl)" allow="encrypted-media" allowfullscreen></iframe>
 </div>
+
+<div>
+    <h4>Comments</h4>
+
+    @if (ViewBag.refinedComments != null)
+    {
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <td>Username</td>
+                    <td>Comment</td>
+                    <td>Date</td>
+                    <td>Rate</td>
+                    <td>Link</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.refinedComments)
+                {
+                    <tr>
+                        <td>@item.Username</td>
+                        <td>@item.Comment</td>
+                        <td>@item.Date</td>
+                        <td>@item.Rating</td>
+                        <td> <a href="@item.Link" target="_blank">View</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
 
 <div>
     <a asp-action="Index">Back to List</a>
