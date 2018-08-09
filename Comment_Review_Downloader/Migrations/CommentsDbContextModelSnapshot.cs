@@ -23,6 +23,8 @@ namespace Comment_Review_Downloader.Migrations
 
                     b.Property<DateTime>("DateAdded");
 
+                    b.Property<bool>("Disabled");
+
                     b.Property<bool>("Fetched");
 
                     b.Property<string>("Location");

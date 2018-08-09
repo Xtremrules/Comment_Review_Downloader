@@ -49,15 +49,15 @@ namespace Comment_Review_Downloader
             services.AddSingleton<IHostedService>(serviceProvider => serviceProvider.GetService<BackgroundEMailSender>());
 
             services.AddSingleton<YoutubeCommentsFetcher>();
-            //services.AddSingleton<AmazonFetcher>();
+            services.AddSingleton<AmazonReviewFetcher>();
 
             services.AddTransient<Func<string, ICommentFetcher>>(serviceProvider => key => {
                 switch (key)
                 {
                     case AppConstants.Youtube:
                         return serviceProvider.GetService<YoutubeCommentsFetcher>();
-                    //case AppConstants.Amazon:
-                    //    return serviceProvider.GetService<AmazonFetcher>();
+                    case AppConstants.Amazon:
+                        return serviceProvider.GetService<AmazonReviewFetcher>();
                     default:
                         throw new KeyNotFoundException(); // or maybe return null, up to you
                 }

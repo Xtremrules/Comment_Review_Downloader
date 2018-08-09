@@ -1,27 +1,18 @@
 ﻿using Comment_Review_Downloader.Data;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore.Sqlite;
-using Microsoft.Data.Sqlite;
+using Comment_Review_Downloader.Models;
 using Microsoft.EntityFrameworkCore;
-//using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage;
-using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Sql;
-using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data.Common;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using Comment_Review_Downloader.Models;
-using System.IO;
-using System.Net.Mime;
 
 namespace Comment_Review_Downloader.Service.HostedServices
 {
@@ -86,31 +77,51 @@ namespace Comment_Review_Downloader.Service.HostedServices
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"failed to fetch email, {ex.Message}");
+                    _logger.LogError($"failed to fetch email, {ex.Message}");
                 }
-                await Task.Delay(10000, stoppingToken);
+
+                //await Task.Delay(10000, stoppingToken);
+                // For 5 Mins
+                await Task.Delay(120000, stoppingToken);
             }
             _logger.LogInformation("Background Email Sender stopped");
         }
 
         private async Task FetchAndSendEmail(CommentsDbContext dbContext)
         {
-            var requestLogs = await dbContext.Query<EmailWorkerModel>()
-                .FromSql("Select c.Location, c.Name, cq.emailAddress, cq.Id from Comments" +
-                " as c inner join CommentRequests as cq on c.id = cq.CommentId  " +
-                "where c.Fetched = 1 and cq.emailed = 0").ToListAsync();//.CommentRequests.Where(
-            if (requestLogs.Any())
+            using (var command = dbContext.Database.GetDbConnection().CreateCommand())
             {
-                foreach (var requestLog in requestLogs)
+                command.CommandText = "Select c.Location, c.Name,c.Disabled, cq.emailAddress, cq.Id from Comments" +
+                " as c inner join CommentRequests as cq on c.id = cq.CommentId  " +
+                "where (c.Fetched = 1 or c.Disabled = 1) and cq.emailed = 0";
+                await command.Connection.OpenAsync();
+                DbDataReader reader = await command.ExecuteReaderAsync();
+
+                if (reader.HasRows)
                 {
-                    _logger.LogInformation($"sending mail for {requestLog.Name}, {requestLog.Location}");
-                    var commentRequest = await dbContext.CommentRequests.FindAsync(requestLog.Id);
-                    commentRequest.emailed = await SendMail(requestLog);
-                    commentRequest.dateSent = DateTime.Now;
-                    dbContext.Attach(commentRequest);
-                    dbContext.Entry(commentRequest).State = EntityState.Modified;
-                    await dbContext.SaveChangesAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        // do something with each in the list or just return the list
+                        var id = reader["Id"].ToString();
+                        _logger.LogInformation($"sending mail for {reader["Name"].ToString() }, {reader["Location"].ToString()}");
+                        var commentRequest = await dbContext.CommentRequests.FindAsync(Convert.ToInt32(id));
+                        var request = new EmailWorkerModel
+                        {
+                            emailAddress = reader["emailAddress"].ToString(),
+                            Id = Convert.ToInt32(reader["Id"].ToString()),
+                            Location = reader["Location"].ToString(),
+                            Name = reader["Name"].ToString(),
+                        };
+                        commentRequest.emailed = await SendMail(request);
+                        commentRequest.dateSent = DateTime.Now;
+                        dbContext.Attach(commentRequest);
+                        dbContext.Entry(commentRequest).State = EntityState.Modified;
+                        await dbContext.SaveChangesAsync();
+                    }
+
+                    command.Connection.Close();
                 }
+                return;
             }
         }
 
@@ -118,7 +129,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
         {
             string fileName = "";
             Attachment attachment = null;
-            if (requestLog.Location != null)
+            if (!string.IsNullOrEmpty(requestLog.Location))
             {
                 fileName = Path.Combine(AppConstants.FileDirectory, requestLog.Location);
                 if (File.Exists(fileName))
@@ -140,9 +151,16 @@ namespace Comment_Review_Downloader.Service.HostedServices
             }
             else
             {
-                message.Body = "Sorry, the website you submitted is not yet supported.";
+                message.Body = "Sorry, the website you submitted is not yet supported or Comment/Review is disabled.";
             }
-            await _smtpClient.SendMailAsync(message);
+            try
+            {
+                await _smtpClient.SendMailAsync(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to send Email, {ex.Message}");
+            }
             return true;
         }
     }

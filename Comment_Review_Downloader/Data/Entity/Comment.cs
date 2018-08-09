@@ -18,6 +18,7 @@ namespace Comment_Review_Downloader.Data.Entity
         public string Location { get; set; }
         public string Name { get; set; }
         public bool Fetched { get; set; }
+        public bool Disabled { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public DateTime DateAdded { get; set; }
 

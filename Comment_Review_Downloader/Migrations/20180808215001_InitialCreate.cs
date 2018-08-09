@@ -18,6 +18,7 @@ namespace Comment_Review_Downloader.Migrations
                     Location = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     Fetched = table.Column<bool>(nullable: false),
+                    Disabled = table.Column<bool>(nullable: false),
                     UpdatedDate = table.Column<DateTime>(nullable: true),
                     DateAdded = table.Column<DateTime>(nullable: false)
                 },

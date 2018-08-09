@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Comment_Review_Downloader.Migrations
 {
     [DbContext(typeof(CommentsDbContext))]
-    [Migration("20180808000030_InitialCreate")]
+    [Migration("20180808215001_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,8 @@ namespace Comment_Review_Downloader.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("DateAdded");
+
+                    b.Property<bool>("Disabled");
 
                     b.Property<bool>("Fetched");
 

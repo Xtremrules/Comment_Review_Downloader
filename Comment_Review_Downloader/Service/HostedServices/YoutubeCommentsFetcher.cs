@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Comment_Review_Downloader.Data.Entity;
@@ -33,8 +34,15 @@ namespace Comment_Review_Downloader.Service.HostedServices
             var response = await _httpClient.GetAsync(query);
             #endregion
 
+            #region Failed Fetch
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return default(CommentDetails);
+            }
+            #endregion
+
             #region needed params
-            var fileName = Guid.NewGuid().ToString() + ".csv";
+            var fileName = Guid.NewGuid().ToString().Replace("-","").ToUpper() + ".csv";
             var currentResponse = new YouTubeCommentSet();
             bool hasMore = false;
             string nextPageToken = "";
@@ -72,7 +80,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
             return new RefinedComment
             {
                 Username = comment.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
-                Date = comment.Snippet.TopLevelComment.Snippet.PublishedAt,
+                Date = comment.Snippet.TopLevelComment.Snippet.PublishedAt.ToLongDateString(),
                 Rating = comment.Snippet.TopLevelComment.Snippet.ViewerRating,
                 Comment = comment.Snippet.TopLevelComment.Snippet.TextOriginal,
                 Link = GetDirectCommentLink(videoId, comment.Snippet.TopLevelComment.Id)
@@ -83,6 +91,10 @@ namespace Comment_Review_Downloader.Service.HostedServices
         {
             var writer = new CsvWriter();
             var fullFilePath = Path.Combine(_path, fileName);
+
+            if (!Directory.Exists(_path))
+                Directory.CreateDirectory(_path);
+
             return writer.Write(comments, fullFilePath, true);
         }
 

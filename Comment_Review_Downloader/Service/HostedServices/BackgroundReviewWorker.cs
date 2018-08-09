@@ -32,21 +32,6 @@ namespace Comment_Review_Downloader.Service.HostedServices
             _fetcherFactory = fetcherFactory;
         }
 
-        private SmtpClient CreateSmtpClient(IConfiguration configuration)
-        {
-            return new SmtpClient
-            {
-                Host = configuration["Smtp:Host"],
-                Port = configuration.GetValue<int>("Smtp:Port"),
-                EnableSsl = configuration.GetValue<bool>("Smtp:Ssl"),
-                UseDefaultCredentials = false,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new NetworkCredential(
-                                    userName: configuration["Smtp:Username"],
-                                    password: configuration["Smtp:Password"]
-                )
-            };
-        }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Background Review Fetcher started");
@@ -54,7 +39,6 @@ namespace Comment_Review_Downloader.Service.HostedServices
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var messageContent = new Message();
                 try
                 {
                     //Let's wait for a message to appear in the queue
@@ -77,14 +61,17 @@ namespace Comment_Review_Downloader.Service.HostedServices
                 {
                     _logger.LogWarning($"failed to fetch reviews, {ex.Message}");
                 }
-                await Task.Delay(10000, stoppingToken);
+
+                //await Task.Delay(10000, stoppingToken);
+                // For 5 Mins
+                await Task.Delay(120000, stoppingToken);
             }
             _logger.LogInformation("Background Review fetcher stopped");
         }
 
         private async Task FetchAndSendRequests(CommentsDbContext dbContext)
         {
-            var requests = await dbContext.Comments.Where(cr => !cr.Fetched).ToListAsync();
+            var requests = await dbContext.Comments.Where(cr => !cr.Fetched && !cr.Disabled).ToListAsync();
             if (requests.Any())
             {
                 foreach (var request in requests)
@@ -110,7 +97,8 @@ namespace Comment_Review_Downloader.Service.HostedServices
                     request.Location = result?.Filename;
                     request.NOC = result?.NOC;
                     request.Name = result?.Name;
-                    request.UpdatedDate = result?.Filename == null ? default(DateTime) : DateTime.Now;
+                    request.UpdatedDate = DateTime.Now;
+                    request.Disabled = result == null ? true : false;
                     dbContext.Attach(request);
                     dbContext.Entry(request).State = EntityState.Modified;
                     await dbContext.SaveChangesAsync();

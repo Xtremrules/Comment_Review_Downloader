@@ -40,21 +40,33 @@ namespace Comment_Review_Downloader.Controllers
 
             if (model.RequestUrl.Contains("amazon"))
             {
-                try
+                var regEx = "(?:dp|product|o|gp|-)\\/(B[0-9]{2}[0-9A-Z]{7}|[0-9]{9}(?:X|[0-9]))";
+                var Match = Regex.Match(model.RequestUrl, regEx, RegexOptions.IgnoreCase);
+                if (Match.Success)
                 {
-                    await AddRequesAsync(model);
-                }
-                catch (Exception)
-                {
+                    var d = Match.Value;
+                    model.RequestUrl = "https://www.amazon.com/product-reviews/" + Match.Value.Substring(Match.Value.Length - 10);
+                    try
+                    {
+                        await AddRequesAsync(model);
+                        return View("amazon-download", model);
+                    }
+                    catch (Exception)
+                    {
 
-                    throw;
+                        throw;
+                    } 
                 }
-                return View("amazon-download", model);
+                else
+                {
+                    addError("Not a valid Amazon Product page");
+                    return View(model);
+                }
             }
-            else
+            else if(model.RequestUrl.Contains("youtube"))
             {
-                var match = "^(http(s)??\\:\\/\\/)?(www\\.|m\\.)?((youtube\\.com\\/watch\\?v=)|(youtu.be\\/))([a-zA-Z0-9\\-_]{11})$";
-                var isMatch = Regex.IsMatch(model.RequestUrl, match, RegexOptions.IgnoreCase);
+                var regEx = "^(http(s)??\\:\\/\\/)?(www\\.|m\\.)?((youtube\\.com\\/watch\\?v=)|(youtu.be\\/))([a-zA-Z0-9\\-_]{11})$";
+                var isMatch = Regex.IsMatch(model.RequestUrl, regEx, RegexOptions.IgnoreCase);
                 if (isMatch)
                 {
                     try
@@ -67,6 +79,11 @@ namespace Comment_Review_Downloader.Controllers
 
                         throw;
                     }
+                }
+                else
+                {
+                    addError("Not a Valid YouTube Address");
+                    return View(model);
                 }
 
             }
@@ -96,6 +113,7 @@ namespace Comment_Review_Downloader.Controllers
                     Url = model.RequestUrl,
                     DateAdded = DateTime.Now,
                     Fetched = false,
+                    Disabled = false
                 };
 
                 comment.CommentRequests = new List<CommentRequest>();
