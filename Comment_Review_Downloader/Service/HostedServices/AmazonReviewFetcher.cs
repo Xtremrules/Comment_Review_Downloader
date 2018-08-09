@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Comment_Review_Downloader.Data.Entity;
+﻿using Comment_Review_Downloader.Data.Entity;
 using Comment_Review_Downloader.Extensions;
 using Comment_Review_Downloader.Models;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ScrapySharp.Extensions;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Comment_Review_Downloader.Service.HostedServices
 {

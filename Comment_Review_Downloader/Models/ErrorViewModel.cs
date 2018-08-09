@@ -1,5 +1,3 @@
-using System;
-
 namespace Comment_Review_Downloader.Models
 {
     public class ErrorViewModel

@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Comment_Review_Downloader.Extensions;
+using Comment_Review_Downloader.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Comment_Review_Downloader.Data.Entity;
-using Comment_Review_Downloader.Extensions;
-using Comment_Review_Downloader.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace Comment_Review_Downloader.Service.HostedServices
 {
