@@ -19,7 +19,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
         private readonly string _endpoint;
         private readonly string _apiKey;
 
-        public YoutubeCommentsFetcher(ILogger<CommentFetcher> logger, IConfiguration config) : base(logger, config)
+        public YoutubeCommentsFetcher(ILogger<CommentFetcher> logger, IConfiguration config, HttpClient httpClient) : base(logger, config, httpClient)
         {
             _apiKey = _config["Youtube:ApiKey"];
             _endpoint = $"https://www.googleapis.com/youtube/v3/commentThreads?key={_apiKey}&part=snippet&maxResults=100";

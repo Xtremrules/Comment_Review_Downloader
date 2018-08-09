@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Comment_Review_Downloader.Data.Entity;
 using Comment_Review_Downloader.Extensions;
@@ -15,7 +16,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
 {
     public class AmazonReviewFetcher : CommentFetcher
     {
-        public AmazonReviewFetcher(ILogger<CommentFetcher> logger, IConfiguration config) : base(logger, config)
+        public AmazonReviewFetcher(ILogger<CommentFetcher> logger, IConfiguration config, HttpClient httpClient) : base(logger, config, httpClient)
         {
         }
 

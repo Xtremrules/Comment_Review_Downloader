@@ -81,7 +81,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
                 }
 
                 //await Task.Delay(10000, stoppingToken);
-                // For 5 Mins
+                // For 2 Mins
                 await Task.Delay(120000, stoppingToken);
             }
             _logger.LogInformation("Background Email Sender stopped");
@@ -134,8 +134,10 @@ namespace Comment_Review_Downloader.Service.HostedServices
                 fileName = Path.Combine(AppConstants.FileDirectory, requestLog.Location);
                 if (File.Exists(fileName))
                 {
-                    attachment = new Attachment(fileName, MediaTypeNames.Application.Octet);
-                    attachment.Name = requestLog.Name + ".csv";
+                    attachment = new Attachment(fileName, MediaTypeNames.Application.Octet)
+                    {
+                        Name = requestLog.Name + ".csv"
+                    };
                 }
             }
 

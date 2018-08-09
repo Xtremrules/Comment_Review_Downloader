@@ -17,6 +17,7 @@ using Comment_Review_Downloader.Service.HostedServices;
 using Microsoft.Extensions.Hosting;
 using Comment_Review_Downloader.Service;
 using Comment_Review_Downloader.Models;
+using System.Net.Http;
 
 namespace Comment_Review_Downloader
 {
@@ -62,6 +63,9 @@ namespace Comment_Review_Downloader
                         throw new KeyNotFoundException(); // or maybe return null, up to you
                 }
             });
+
+            HttpClient httpClient = new HttpClient();
+            services.AddSingleton(httpClient);
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

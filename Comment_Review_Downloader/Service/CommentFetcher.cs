@@ -18,9 +18,9 @@ namespace Comment_Review_Downloader.Service
         protected readonly string _path;
 
         public CommentFetcher(ILogger<CommentFetcher> logger,
-            IConfiguration config)
+            IConfiguration config, HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _logger = logger;
             _config = config;
             _path = AppConstants.FileDirectory;
