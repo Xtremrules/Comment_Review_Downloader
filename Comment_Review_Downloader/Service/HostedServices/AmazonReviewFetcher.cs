@@ -26,6 +26,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
             var fileName = Guid.NewGuid().ToString().Replace("-", "").ToUpper() + ".csv";
             var title = "";
             var webScrap = new HtmlWeb();
+            webScrap.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
             var hasMore = false;
             var count = 1;
 

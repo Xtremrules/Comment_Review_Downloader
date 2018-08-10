@@ -32,7 +32,7 @@ namespace Comment_Review_Downloader.Controllers
             _commentRequestRepo = commentRequest;
             _logger = logger;
             _apiKey = config["Youtube:ApiKey"];
-            _endpoint = "https://www.googleapis.com/youtube/v3/commentThreads?key=" + _apiKey + "&part=snippet&maxResults=100&videoId={0}";
+            _endpoint = "https://www.googleapis.com/youtube/v3/commentThreads?key=" + _apiKey + "&part=snippet&maxResults=20&videoId={0}";
         }
 
         public IActionResult Index()
@@ -109,6 +109,12 @@ namespace Comment_Review_Downloader.Controllers
             var comment = await _commentRepo.GetOneAsync(x => x.Url == model.RequestUrl);
             if (comment != null)
             {
+                if(comment.Fetched)
+                    if(comment.UpdatedDate?.AddHours(2).Date <= DateTime.Now.Date)
+                    {
+                        comment.Fetched = false;
+                        _commentRepo.Update(comment);
+                    }
                 _commentRequestRepo.Create(new CommentRequest
                 {
                     dateRequested = DateTime.Now,
