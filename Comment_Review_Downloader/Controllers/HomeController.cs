@@ -82,8 +82,8 @@ namespace Comment_Review_Downloader.Controllers
                     try
                     {
                         await AddRequesAsync(model);
-                        model.RequestUrl = model.RequestUrl.Substring(model.RequestUrl.Length - 11);
-                        await GetYouTubeCommentAsync(model.RequestUrl);
+                        var videoId = model.RequestUrl.Substring(model.RequestUrl.Length - 11);
+                        await GetYouTubeCommentAsync(videoId);
                         return View("youtube-download", model);
                     }
                     catch (Exception ex)
