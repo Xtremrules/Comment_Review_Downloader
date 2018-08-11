@@ -5,12 +5,15 @@
 }
 
 
-<h4>Request View</h4>
+<h4>Review Request View</h4>
 <h1>Thank you!</h1>
- @Html.Partial("_alerts")
+@Html.Partial("_alerts")
 <p>We reiceved your request and we're going to get in touch with you soon!</p>
-<p>wait for the file in your email</p>
+<p>You don't really need to wait. It will be sent to your email</p>
 @*<p>Request Id: @Model.Id</p>*@
-<p>Request Url: @Model.RequestUrl</p>
+<p>Request Url: <a href="@Model.RequestUrl" class="btn btn-info" target="_blank">Go to product page</a></p>
 <p>Delivery Email: @Model.Email</p>
-<a href="/" class="btn btn-primary">Go back to the Homepage</a>
+<p>Please, Do not refresh this page</p>
+<p>
+    <a href="/" class="btn btn-primary">Go back to the Homepage</a> To request for another comment!
+</p>

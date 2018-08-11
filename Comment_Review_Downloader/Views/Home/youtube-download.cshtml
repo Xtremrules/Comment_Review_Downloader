@@ -3,17 +3,27 @@
 @{
     ViewData["Title"] = "youtube";
 }
-@Html.Partial("_alerts")
 
-<div class="embed-responsive embed-responsive-16by9">
-    <iframe class="embed-responsive-item" src="@("https://www.youtube.com/embed/" + Model.RequestUrl)" allow="encrypted-media" allowfullscreen></iframe>
+<div>
+    <h4>Comment Request View</h4>
+    <h1>Thank you!</h1>
+    @Html.Partial("_alerts")
+    <p>We reiceved your request and we're going to get in touch with you soon!</p>
+    <p>You don't really need to wait. It will be sent to your email</p>
+    @*<p>Request Id: @Model.Id</p>*@
+    <p>Request Url: <a href="@Model.RequestUrl" class="btn btn-info" target="_blank">Go to video page</a></p>
+    <p>Delivery Email: @Model.Email</p>
+    <p>Please, Do not refresh this page</p>
+    <p>
+        <a href="/" class="btn btn-primary">Go back to the Homepage</a> To request for another comment!
+    </p>
 </div>
 
 <div>
-    <h4>Comments</h4>
 
     @if (ViewBag.refinedComments != null)
     {
+        <h4>Comments (First 20)</h4>
         <table class="table table-bordered table-condensed table-striped">
             <thead>
                 <tr>
@@ -37,6 +47,11 @@
                 }
             </tbody>
         </table>
+    }
+    else
+    {
+        @: Comment is disabled for this video
+
     }
 </div>
 
