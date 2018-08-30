@@ -27,6 +27,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
         //public override async Task<string> FetchComments(Data.Entity.Comment comment)
         public override async Task<CommentDetails> FetchComments(Data.Entity.Comment comment)
         {
+            _logger.LogInformation($"Youtube Started: {comment.Url}");
             #region initialize
             var videoId = GetVideoId(comment.Url);
             var query = BuildQuery(videoId);
@@ -36,6 +37,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
             #region Failed Fetch
             if (response.StatusCode == HttpStatusCode.Forbidden)
             {
+                _logger.LogInformation($"Youtube: {response.StatusCode.ToString()}");
                 return default(CommentDetails);
             }
             #endregion
@@ -94,7 +96,15 @@ namespace Comment_Review_Downloader.Service.HostedServices
             if (!Directory.Exists(_path))
                 Directory.CreateDirectory(_path);
 
-            return writer.Write(comments, fullFilePath, true);
+            try
+            {
+                return writer.Write(comments, fullFilePath, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to write file");
+                return false;
+            }
         }
 
         public string GetVideoId(string url)

@@ -48,15 +48,15 @@ namespace Comment_Review_Downloader.Service.HostedServices
                         await FetchAndSendRequests(dbContext);
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
                     //We need to terminate the delivery, so we'll just break the while loop
-                    _logger.LogInformation("background review fetcher is down.");
+                    _logger.LogInformation(ex, "background review fetcher is down.");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"failed to fetch reviews, {ex.Message}");
+                    _logger.LogError(ex, $"failed to fetch reviews, {ex.Message}");
                 }
 
                 //await Task.Delay(10000, stoppingToken);
@@ -73,7 +73,9 @@ namespace Comment_Review_Downloader.Service.HostedServices
             {
                 foreach (var request in requests)
                 {
+                    _logger.LogInformation($"Db Fetch Request ID: {request.ToString()}");
                     var host = new Uri(request.Url)?.Host;
+                    _logger.LogInformation($"Host: {host}");
                     CommentDetails result = new CommentDetails();
                     switch (host)
                     {
@@ -94,10 +96,11 @@ namespace Comment_Review_Downloader.Service.HostedServices
                     request.Location = result?.Filename;
                     request.NOC = result?.NOC;
                     request.Name = result?.Name;
-                    request.UpdatedDate = DateTime.Now;
+                    request.UpdatedDate = DateTime.UtcNow;
                     request.Disabled = result == null ? true : false;
                     dbContext.Attach(request);
                     dbContext.Entry(request).State = EntityState.Modified;
+                    _logger.LogInformation($"Comment Download Successfull: {request.ToString()}");
                     await dbContext.SaveChangesAsync();
                 }
             }

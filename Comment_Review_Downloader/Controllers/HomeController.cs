@@ -61,10 +61,9 @@ namespace Comment_Review_Downloader.Controllers
                         await AddRequesAsync(model);
                         return View("amazon-download", model);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
-                        throw;
+                        _logger.LogError(ex, "Amazon Request");
                     }
                 }
                 else
@@ -89,6 +88,7 @@ namespace Comment_Review_Downloader.Controllers
                     catch (Exception ex)
                     {
                         AddError(ex.Message);
+                        _logger.LogError(ex, "Youtube Request");
                         return View(model);
                     }
                 }
@@ -109,15 +109,15 @@ namespace Comment_Review_Downloader.Controllers
             var comment = await _commentRepo.GetOneAsync(x => x.Url == model.RequestUrl);
             if (comment != null)
             {
-                if(comment.Fetched)
-                    if(comment.UpdatedDate?.AddHours(2).Date <= DateTime.Now.Date)
-                    {
-                        comment.Fetched = false;
-                        _commentRepo.Update(comment);
-                    }
+                //if(comment.Fetched)
+                //    if(comment.UpdatedDate?.AddHours(2).Date <= DateTime.UtcNow.Date)
+                //    {
+                //        comment.Fetched = false;
+                //        _commentRepo.Update(comment);
+                //    }
                 _commentRequestRepo.Create(new CommentRequest
                 {
-                    dateRequested = DateTime.Now,
+                    dateRequested = DateTime.UtcNow,
                     emailAddress = model.Email,
                     emailed = false,
                     CommentId = comment.Id,
@@ -129,7 +129,7 @@ namespace Comment_Review_Downloader.Controllers
                 comment = new Data.Entity.Comment
                 {
                     Url = model.RequestUrl,
-                    DateAdded = DateTime.Now,
+                    DateAdded = DateTime.UtcNow,
                     Fetched = false,
                     Disabled = false
                 };
@@ -138,7 +138,7 @@ namespace Comment_Review_Downloader.Controllers
                 {
                     new CommentRequest
                     {
-                        dateRequested = DateTime.Now,
+                        dateRequested = DateTime.UtcNow,
                         emailAddress = model.Email,
                         emailed = false,
                     }

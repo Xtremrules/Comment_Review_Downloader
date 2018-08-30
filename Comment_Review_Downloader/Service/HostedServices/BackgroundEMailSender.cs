@@ -69,15 +69,15 @@ namespace Comment_Review_Downloader.Service.HostedServices
                         await FetchAndSendEmail(dbContext);
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
                     //We need to terminate the delivery, so we'll just break the while loop
-                    _logger.LogInformation("background email sender is down.");
+                    _logger.LogInformation(ex, "background email sender is down.");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"failed to fetch email, {ex.Message}");
+                    _logger.LogError(ex, $"failed to fetch email, {ex.Message}");
                 }
 
                 //await Task.Delay(10000, stoppingToken);
@@ -113,7 +113,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
                             Name = reader["Name"].ToString(),
                         };
                         commentRequest.emailed = await SendMail(request);
-                        commentRequest.dateSent = DateTime.Now;
+                        commentRequest.dateSent = DateTime.UtcNow;
                         dbContext.Attach(commentRequest);
                         dbContext.Entry(commentRequest).State = EntityState.Modified;
                         await dbContext.SaveChangesAsync();
@@ -161,7 +161,7 @@ namespace Comment_Review_Downloader.Service.HostedServices
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to send Email, {ex.Message}");
+                _logger.LogError(ex, $"Failed to send Email, {ex.Message}");
             }
             return true;
         }

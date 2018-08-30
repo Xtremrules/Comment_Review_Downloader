@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -19,12 +20,15 @@ namespace Comment_Review_Downloader
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger<Startup> _logger;
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
+            _logger = logger;
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -49,13 +53,17 @@ namespace Comment_Review_Downloader
             services.AddSingleton<AmazonReviewFetcher>();
 
             services.AddTransient<Func<string, ICommentFetcher>>(serviceProvider => key => {
+                _logger.LogInformation($"Comment Fetcher Tranient: {key}");
                 switch (key)
                 {
                     case AppConstants.Youtube:
+                        _logger.LogInformation($"Selected: {key}");
                         return serviceProvider.GetService<YoutubeCommentsFetcher>();
                     case AppConstants.Amazon:
+                        _logger.LogInformation($"Selected: {key}");
                         return serviceProvider.GetService<AmazonReviewFetcher>();
                     default:
+                        _logger.LogInformation($"Transient Error");
                         throw new KeyNotFoundException(); // or maybe return null, up to you
                 }
             });
