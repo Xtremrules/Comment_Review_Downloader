@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Comment_Review_Downloader.Data.Entity
 {
-    public class Comment: BaseEntity
+    public class Comment : BaseEntity
     {
         [Key]
         public int Id { get; set; }
@@ -23,5 +23,10 @@ namespace Comment_Review_Downloader.Data.Entity
         public DateTime DateAdded { get; set; }
 
         public virtual ICollection<CommentRequest> CommentRequests { get; set; }
+
+        public override string ToString()
+        {
+            return $"Id:{Id}, Url:{Url}, Fetched:{Fetched.ToString()}, Name:{Name}, Location: {Location}, Disabled: {Disabled.ToString()}";
+        }
     }
 }
